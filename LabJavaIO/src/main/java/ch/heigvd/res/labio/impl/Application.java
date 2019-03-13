@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -94,6 +97,8 @@ public class Application implements IApplication {
             for (String tag : quote.getTags()) {
                 LOG.info("> " + tag);
             }
+            // CRUCHON
+            storeQuote(quote, String.format("quote-%s.utf8", i));
         }
     }
 
@@ -123,7 +128,17 @@ public class Application implements IApplication {
      * @throws IOException
      */
     void storeQuote(Quote quote, String filename) throws IOException {
-        throw new UnsupportedOperationException("The student has not implemented this method yet.");
+
+        // Need to be a final array to use in lambda
+        final String[] fullPath = {WORKSPACE_DIRECTORY};
+        // Construct the hierarchy
+        quote.getTags().forEach(t -> fullPath[0] += "/" + t);
+        // Create the hierarchy
+        Files.createDirectories(Paths.get(fullPath[0]));
+        // Create the file and write content of the quote in it.
+        Path f = Paths.get(String.format("%s/%s", fullPath[0], filename));
+        Files.createFile(f);
+        Files.write(f, quote.getValue().getJoke().getBytes());
     }
 
     /**
