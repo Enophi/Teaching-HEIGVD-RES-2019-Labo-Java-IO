@@ -19,8 +19,15 @@ public class Utils {
      * contain any line separator, then the first element is an empty string.
      */
     public static String[] getNextLine(String lines) {
-        // TODO get the next line
-        throw new UnsupportedOperationException("The student has not implemented this method yet.");
+
+        if (lines.contains("\r\n"))
+            return lines.split("(?<=\r\n)", 2);
+        else if (lines.contains("\n"))
+            return lines.split("(?<=\n)", 2);
+        else if (lines.contains("\r"))
+            return lines.split("(?<=\r)", 2);
+        else
+            return new String[]{"", lines};
     }
 
 }

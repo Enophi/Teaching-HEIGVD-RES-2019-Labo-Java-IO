@@ -4,7 +4,6 @@ import ch.heigvd.res.labio.impl.explorers.DFSFileExplorer;
 import ch.heigvd.res.labio.impl.transformers.CompleteFileTransformer;
 import ch.heigvd.res.labio.interfaces.IApplication;
 import ch.heigvd.res.labio.interfaces.IFileExplorer;
-import ch.heigvd.res.labio.interfaces.IFileVisitor;
 import ch.heigvd.res.labio.quotes.Quote;
 import ch.heigvd.res.labio.quotes.QuoteClient;
 import org.apache.commons.io.FileUtils;
@@ -127,12 +126,12 @@ public class Application implements IApplication {
      * @param filename the name of the file to create and where to store the quote text
      * @throws IOException
      */
-    void storeQuote(Quote quote, String filename) throws IOException {
+    private void storeQuote(Quote quote, String filename) throws IOException {
 
         // Need to be a final array to use in lambda
         final String[] fullPath = {WORKSPACE_DIRECTORY};
         // Construct the hierarchy
-        quote.getTags().forEach(t -> fullPath[0] += "/" + t);
+        quote.getTags().stream().sorted(String::compareTo).forEach(t -> fullPath[0] += "/" + t);
         // Create the hierarchy
         Files.createDirectories(Paths.get(fullPath[0]));
         // Create the file and write content of the quote in it.
@@ -147,14 +146,16 @@ public class Application implements IApplication {
      */
     void printFileNames(final Writer writer) {
         IFileExplorer explorer = new DFSFileExplorer();
-        explorer.explore(new File(WORKSPACE_DIRECTORY), new IFileVisitor() {
-            @Override
-            public void visit(File file) {
-                /*
-                 * There is a missing piece here. Notice how we use an anonymous class here. We provide the implementation
-                 * of the the IFileVisitor interface inline. You just have to add the body of the visit method, which should
-                 * be pretty easy (we want to write the filename, including the path, to the writer passed in argument).
-                 */
+        explorer.explore(new File(WORKSPACE_DIRECTORY), file -> {
+            /*
+             * There is a missing piece here. Notice how we use an anonymous class here. We provide the implementation
+             * of the the IFileVisitor interface inline. You just have to add the body of the visit method, which should
+             * be pretty easy (we want to write the filename, including the path, to the writer passed in argument).
+             */
+            try {
+                writer.write(file.getPath() + '\n');
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }

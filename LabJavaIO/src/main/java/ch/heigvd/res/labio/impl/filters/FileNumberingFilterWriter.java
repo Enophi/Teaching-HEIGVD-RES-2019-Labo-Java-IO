@@ -3,7 +3,6 @@ package ch.heigvd.res.labio.impl.filters;
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.logging.Logger;
 
 /**
  * This class transforms the streams of character sent to the decorated writer.
@@ -17,7 +16,8 @@ import java.util.logging.Logger;
  */
 public class FileNumberingFilterWriter extends FilterWriter {
 
-    private static final Logger LOG = Logger.getLogger(FileNumberingFilterWriter.class.getName());
+    private boolean isNewLine = true;
+    private int lineNo = 1;
 
     public FileNumberingFilterWriter(Writer out) {
         super(out);
@@ -25,20 +25,31 @@ public class FileNumberingFilterWriter extends FilterWriter {
 
     @Override
     public void write(String str, int off, int len) throws IOException {
-        // TODO filter file numbering 1
-        throw new UnsupportedOperationException("The student has not implemented this method yet.");
+        // filter file numbering 1
+        for (int i = off; i < off + len; ++i)
+            this.write(str.charAt(i));
+
     }
 
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
-        // TODO filter file numbering 2
-        throw new UnsupportedOperationException("The student has not implemented this method yet.");
+        // filter file numbering 2
+        for (int i = off; i < off + len; ++i)
+            this.write(cbuf[i]);
+
     }
 
     @Override
     public void write(int c) throws IOException {
-        // TODO filter file numbering 3
-        throw new UnsupportedOperationException("The student has not implemented this method yet.");
+        // filter file numbering 3
+        if (lineNo == 1 || isNewLine && c != '\n')
+            out.write(lineNo++ + "\t");
+
+        isNewLine = c == '\r';
+        out.write(c);
+
+        if (!isNewLine && c == '\n')
+            out.write(lineNo++ + "\t");
     }
 
 }
